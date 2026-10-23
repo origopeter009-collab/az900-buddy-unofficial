@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AZ-900 Buddy (Unofficial)</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fbf7ef;--card:#fff;--tx:#1f2a26;--mu:#5d6b64;--ac:#0f7b5f;--ac2:#e8a317;--bd:#e3dccb;--bad:#c0392b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14201b;--card:#1d2d26;--tx:#eef3ef;--mu:#a3b3aa;--ac:#4cc9a0;--ac2:#f0b73a;--bd:#2e443a;--bad:#ff7b6b}}
+:root[data-theme="dark"]{--bg:#14201b;--card:#1d2d26;--tx:#eef3ef;--mu:#a3b3aa;--ac:#4cc9a0;--ac2:#f0b73a;--bd:#2e443a;--bad:#ff7b6b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:.2em 0}.sub{color:var(--mu);margin:0 0 12px}
+.badge{display:inline-block;background:var(--ac2);color:#222;font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:99px}
+nav{display:flex;gap:8px;margin:14px 0}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:10px}
+button.on,button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:10px 0}
+.card h3{margin:.1em 0 .3em}.tag{font-size:.75rem;color:var(--mu)}
+.bar{height:14px;background:var(--bd);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac);transition:width .6s}
+.big{font-size:2.4rem;font-weight:800;color:var(--ac)}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}
+.opt.ok{background:var(--ac);color:#fff}.opt.no{border-color:var(--bad);color:var(--bad)}
+.row{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+input,select,textarea{font:inherit;padding:8px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+footer{color:var(--mu);font-size:.8rem;margin:24px 0}
+</style></head><body><main>
+<h1>AZ-900 Buddy <span class="badge">UNOFFICIAL</span></h1>
+<p class="sub">Learn Azure basics with African everyday examples, then check how ready you are.</p>
+<nav style="flex-wrap:wrap"><button class="tb on" data-s="learn">Learn</button><button class="tb" data-s="buddy">AI Buddy</button><button class="tb" data-s="flash">Flashcards</button><button class="tb" data-s="plan">Planner</button><button class="tb" data-s="ready">Readiness</button></nav>
+<section id="learn"><div style="margin-bottom:8px">Language: <button id="en" class="on">English</button> <button id="sw">Kiswahili</button></div><div id="cards"></div></section>
+<section id="buddy" hidden><div class="card"><b>AI Study Buddy</b><div class="tag">Ask about any AZ-900 idea. Answers are AI-generated, so check them against the official Microsoft Learn outline.</div><div style="margin:8px 0">Language: <select id="bl"><option>English</option><option>Kiswahili</option><option>Hausa</option><option>Yoruba</option><option>Nigerian Pidgin</option></select></div><textarea id="bq" rows="2" style="width:100%" placeholder="e.g. What is a resource group?"></textarea><div class="row"><span></span><button class="pri" id="ba">Ask</button></div></div><div id="bout"></div></section>
+<section id="flash" hidden><div id="fcard"></div></section>
+<section id="plan" hidden><div class="card"><b>Personal Study Planner</b><div class="tag">Builds a plan that puts more days on your weaker, higher-weighted areas.</div><div class="row" style="flex-wrap:wrap;justify-content:flex-start"><label>Exam date <input type="date" id="pd"></label><label>Hours/day <input type="number" id="ph" min="0.5" max="8" step="0.5" value="1" style="width:80px"></label><button class="pri" id="pb">Make plan</button></div></div><div id="pout"></div></section>
+<section id="ready" hidden><div id="dash"></div>
+<div class="card"><b>Smart Quiz Builder</b><div class="tag">AI writes 3 fresh practice questions on any topic, with instant feedback and explanations.</div><div class="row" style="flex-wrap:wrap;justify-content:flex-start"><select id="gd"><option value="0">Cloud concepts</option><option value="1">Architecture &amp; services</option><option value="2">Management &amp; governance</option></select><input id="gt" placeholder="Topic, e.g. Azure Storage"><button class="pri" id="gb">Build quiz</button></div><div id="gs" class="tag"></div></div>
+<div id="quiz"></div></section>
+<footer>Unofficial study aid. Not affiliated with or endorsed by Microsoft. Questions are original and follow the public AZ-900 skills outline on Microsoft Learn. Always confirm with the official outline.</footer>
+<script>
+const D=["Cloud concepts","Architecture & services","Management & governance"],W=[.275,.375,.325];
+const C=[
+{t:"Public cloud",en:"Like a matatu: you share the vehicle with strangers, pay only your fare, and never worry about the engine.",sw:"Kama matatu: mnashiriki gari na wengine, unalipa nauli yako tu, na huna wasiwasi na injini."},
+{t:"Shared responsibility",en:"Like renting a market stall: the landlord secures the building, but you must lock your own goods.",sw:"Kama kupanga kibanda sokoni: mwenye jengo analinda jengo, lakini wewe unalinda bidhaa zako."},
+{t:"Consumption-based pricing",en:"Like buying prepaid electricity tokens: you pay for what you use instead of owning a power plant.",sw:"Kama kununua token za umeme: unalipia unachotumia, huhitaji kumiliki kituo cha umeme."},
+{t:"Elasticity",en:"Like a food stall adding tables on market day and removing them after. Capacity follows demand.",sw:"Kama mama lishe anayeongeza meza siku ya soko na kuziondoa baadaye. Uwezo hufuata mahitaji."},
+{t:"Regions & availability zones",en:"Like a bank with branches in different towns. If one loses power, the others keep serving you.",sw:"Kama benki yenye matawi miji tofauti. Tawi moja likikosa umeme, mengine yanaendelea kukuhudumia."},
+{t:"Resource groups",en:"Like a SACCO folder per member: everything for one project in one place, easy to manage or close together.",sw:"Kama faili ya kila mwanachama wa SACCO: kila kitu cha mradi mmoja mahali pamoja, rahisi kusimamia."},
+{t:"Microsoft Entra ID",en:"Like the guard checking your ID card at the gate before letting you in.",sw:"Kama mlinzi anayekagua kitambulisho chako langoni kabla ya kukuruhusu kuingia."},
+{t:"Azure Policy",en:"Like cooperative bylaws: members may only do what the rules allow, and breaches are flagged.",sw:"Kama katiba ya chama: wanachama wanafanya yanayoruhusiwa tu, na ukiukaji unaonekana."}];
+const Q=[
+{d:0,q:"A farmers' co-op app gets huge traffic only on market days. Which cloud benefit helps most?",o:["Elasticity","Fixed capacity","Higher upfront hardware cost","Manual scaling only"],w:"Elasticity lets resources scale up and down with demand."},
+{d:0,q:"For a virtual machine you rent (IaaS), who patches the guest operating system?",o:["The customer","The cloud provider","Nobody","The internet provider"],w:"With IaaS the customer manages the OS; the provider handles the physical host."},
+{d:0,q:"Paying monthly for only what you use, instead of buying servers, is mainly a shift to which expense type?",o:["Operational expenditure (OpEx)","Capital expenditure (CapEx)","Depreciation","Fixed licensing"],w:"Pay-as-you-go cloud spending is OpEx."},
+{d:1,q:"Which describes an availability zone?",o:["Separate datacenters in a region with independent power, cooling and networking","A billing category","A type of storage account","A user permission group"],w:"Zones protect workloads from a single datacenter failure."},
+{d:1,q:"Where would you store thousands of unstructured photos and videos?",o:["Blob Storage","Azure DNS","A virtual network","Azure Policy"],w:"Blob Storage is for unstructured object data."},
+{d:1,q:"You want code to run when a file is uploaded, without managing servers. Best fit?",o:["Azure Functions","A dedicated VM","Azure Backup","A load balancer"],w:"Functions is event-driven serverless compute."},
+{d:2,q:"You must stop teams from creating resources outside approved regions. Use:",o:["Azure Policy","Resource lock","Azure Advisor only","A tag"],w:"Azure Policy enforces organisational rules on resources."},
+{d:2,q:"Which feature helps prevent accidental deletion of a resource?",o:["Resource lock","Tag","Region pairing","Pricing calculator"],w:"A delete lock blocks deletion until it is removed."},
+{d:2,q:"Which tool estimates the monthly cost of a planned deployment before you build it?",o:["Pricing calculator","Service Health","Azure Monitor","Entra ID"],w:"The pricing calculator estimates costs ahead of time."}];
+const $=id=>document.getElementById(id);let lang="en",H={};
+try{H=JSON.parse(localStorage.getItem("az900h")||"{}")}catch(e){}
+function save(){try{localStorage.setItem("az900h",JSON.stringify(H))}catch(e){}}
+function cards(){$("cards").innerHTML=C.map(c=>`<div class="card"><h3>${c.t}</h3><div>${c[lang]}</div></div>`).join("")}
+function dom(i){const a=(H[i]||[]).slice(-3);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null}
+function dash(){let s=0,w=0;const rows=D.map((n,i)=>{const v=dom(i);if(v!==null){s+=v*W[i];w+=W[i]}
+return `<div style="margin:10px 0"><div class="row" style="margin:0"><span>${n} <span class="tag">(~${Math.round(W[i]*100)}% of exam)</span></span><b>${v===null?"No data":v+"%"}</b></div><div class="bar"><i style="width:${v||0}%"></i></div></div>`}).join("");
+const o=w?Math.round(s/w):null,cov=Math.round(w/W.reduce((a,b)=>a+b)*100);
+const st=o===null?"Take a practice set to begin.":cov<100?"Practise all three areas for a full picture.":o>=80?"Looking ready. Do more mixed practice.":o>=60?"Almost there. Focus on your lowest area.":"Keep studying. Revisit the Learn tab.";
+$("dash").innerHTML=`<div class="card"><div class="tag">Weighted readiness (last 3 attempts per area)</div><div class="big">${o===null?"-":o+"%"}</div><div>${st}</div>${rows}<div class="tag">Rough guide only. Not a prediction of your exam result.</div></div><div class="card"><b>Practice by area</b><div class="row" style="flex-wrap:wrap;justify-content:flex-start">${D.map((n,i)=>`<button class="pri" onclick="start(${i})">${n}</button>`).join("")}</div></div>`}
+let cur,qi,sc;
+function shuf(a){return a.map(x=>[Math.random(),x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1])}
+function start(d){cur=Q.filter(q=>q.d===d);cur.d=d;qi=0;sc=0;show()}
+function show(){const q=cur[qi],os=shuf(q.o.map((t,i)=>({t,ok:i===0})));
+$("quiz").innerHTML=`<div class="card"><div class="tag">${D[cur.d]} · ${qi+1}/${cur.length}</div><h3>${q.q}</h3>${os.map((o,i)=>`<button class="opt" data-i="${i}">${o.t}</button>`).join("")}<div id="fb"></div></div>`;
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const o=os[b.dataset.i];if(o.ok)sc++;
+document.querySelectorAll(".opt").forEach((x,i)=>{x.disabled=true;if(os[i].ok)x.classList.add("ok");else if(x===b)x.classList.add("no")});
+$("fb").innerHTML=`<p>${o.ok?"Correct. ":"Not quite. "}${q.w}</p><button class="pri" id="nx">${qi+1<cur.length?"Next":"Finish"}</button>`;
+$("nx").onclick=()=>{qi++;if(qi<cur.length)show();else done()}})}
+function done(){const p=Math.round(sc/cur.length*100);(H[cur.d]=H[cur.d]||[]).push(p);H[cur.d]=H[cur.d].slice(-10);save();
+$("quiz").innerHTML=`<div class="card"><h3>You scored ${p}% in ${D[cur.d]}</h3><div>${sc}/${cur.length} correct.</div></div>`;dash()}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function AI(){try{return window.claude?await claude.use("sample"):null}catch(e){return null}}
+const aiErr=e=>e&&e.code==="not_granted"?"Permission is needed to use the AI helper.":"The AI helper could not answer. Try again.";
+let hist=[];
+const SYS="You are AZ-900 Buddy, an unofficial study helper for the Azure Fundamentals exam. Explain Azure concepts simply for a beginner, using short everyday African examples (matatus, M-Pesa, markets, SACCOs, prepaid electricity) and then link back to the Azure term. Reply in the requested language but keep Azure service names in English. Base answers on the public AZ-900 skills outline, stay accurate, and say so if unsure. Keep it under 150 words. Never reproduce real exam questions.";
+async function ask(){const i=$("bq"),q=i.value.trim();if(!q)return;const sm=await AI();if(!sm){$("bout").textContent="The AI helper is not available in this view.";return}
+hist.push({role:"user",content:q});i.value="";const box=document.createElement("div");box.className="card";const qd=document.createElement("div"),ad=document.createElement("div");qd.className="tag";qd.textContent="You: "+q;ad.textContent="Thinking...";box.append(qd,ad);$("bout").prepend(box);
+const msgs=hist.map((m,k)=>k===0?{role:"user",content:SYS+"\nLanguage: "+$("bl").value+"\n\nStudent question: "+m.content}:m);
+try{const r=await sm(msgs,{cache:false,onText:t=>ad.textContent=t.text});ad.textContent=r.text;hist.push({role:"assistant",content:r.text})}catch(e){ad.textContent=aiErr(e);hist.pop()}}
+async function gen(){const d=+$("gd").value,t=$("gt").value.trim()||D[d],sm=await AI();if(!sm){$("gs").textContent="The AI helper is not available in this view.";return}
+$("gs").textContent="Writing questions...";
+try{const r=await sm.json("Write 3 ORIGINAL multiple-choice practice questions for a beginner studying for the Azure Fundamentals (AZ-900) exam on the topic: "+t+" (skills area: "+D[d]+"). Follow the public AZ-900 skills outline, do not copy real exam questions, be technically accurate, and use a short everyday African context in at least one question. Return ONLY a JSON array of 3 objects: {\"q\":string,\"correct\":string,\"wrong\":[3 plausible wrong answer strings],\"why\":string of 1-2 sentences}.",{cache:false});
+const a=(Array.isArray(r)?r:[]).filter(x=>x&&x.q&&x.correct&&Array.isArray(x.wrong)&&x.wrong.length>=3).map(x=>({d,q:esc(x.q),o:[esc(x.correct),...x.wrong.slice(0,3).map(esc)],w:esc(x.why||"")}));
+if(!a.length)throw 0;$("gs").textContent="";cur=a;cur.d=d;qi=0;sc=0;show()}catch(e){$("gs").textContent=aiErr(e)}}
+const F=[["IaaS","Cloud service where you rent virtual machines and networking. You manage the OS and apps."],["PaaS","The provider runs the platform and runtime. You manage your app and data."],["SaaS","Ready-made software you simply use, like email in a browser."],["CapEx","Upfront spending on physical assets such as servers."],["OpEx","Pay-as-you-go spending on services as you use them."],["Region","A geographic area containing one or more datacenters."],["Availability zone","A separate datacenter in a region with its own power, cooling and networking."],["Resource group","A logical container for related Azure resources."],["Microsoft Entra ID","Cloud identity and access service that checks who you are."],["Azure Policy","Creates and enforces rules on your resources."],["Resource lock","Stops a resource being deleted or changed by accident."],["Azure Functions","Serverless code that runs when an event happens."],["Azure Monitor","Collects and analyses data about how your resources perform."],["Pricing calculator","Estimates the cost of a deployment before you build it."]];
+let FB={};try{FB=JSON.parse(localStorage.getItem("az900f")||"{}")}catch(e){}
+let fc=0,fl=false;
+function fsave(){try{localStorage.setItem("az900f",JSON.stringify(FB))}catch(e){}}
+function fnext(){const m=Math.min(...F.map((_,i)=>FB[i]||0)),p=F.map((_,i)=>i).filter(i=>(FB[i]||0)===m);fc=p[Math.floor(Math.random()*p.length)];fl=false;frender()}
+function frender(){const k=F.filter((_,i)=>(FB[i]||0)>=3).length;$("fcard").innerHTML=`<div class="card" id="fk" style="min-height:120px;cursor:pointer;text-align:center"><div class="tag">${fl?"Meaning":"Tap to flip"}</div><h3>${fl?F[fc][1]:F[fc][0]}</h3></div><div class="row"><button id="fa">Again</button><button class="pri" id="fg">Got it</button></div><div class="tag">Mastered: ${k}/${F.length}. Cards you miss come back sooner.</div>`;
+$("fk").onclick=()=>{fl=!fl;frender()};$("fa").onclick=()=>{FB[fc]=0;fsave();fnext()};$("fg").onclick=()=>{FB[fc]=Math.min(4,(FB[fc]||0)+1);fsave();fnext()}}
+function plan(){const v=$("pd").value;if(!v){$("pout").textContent="Pick your exam date.";return}
+const days=Math.ceil((new Date(v+"T00:00:00")-new Date(new Date().toDateString()))/864e5),hr=+$("ph").value||1;
+if(days<1){$("pout").textContent="Pick a future date.";return}
+const need=D.map((_,i)=>W[i]*(1-(dom(i)??40)/100)+.05),c=[0,0,0],n=Math.min(days,14),L=[];
+for(let k=0;k<n;k++){if(k===days-1){L.push("Day "+(k+1)+": Light flashcard review, then rest.");continue}
+let b=0;for(let i=1;i<3;i++)if(need[i]/(c[i]+1)>need[b]/(c[b]+1))b=i;
+L.push(`Day ${k+1}: ${D[b]} (${hr}h) - ${c[b]%2?"practice set, then review mistakes":"Learn cards, then flashcards"}`);c[b]++}
+$("pout").innerHTML=`<div class="card"><b>${days} day${days>1?"s":""} to go</b><div class="tag">Extra days go to areas where your score is low or unknown.${days>14?" Showing the next 14 days. Rebuild it as your scores change.":""}</div><ol>${L.map(x=>"<li>"+x.replace(/^Day \d+: /,"")+"</li>").join("")}</ol></div>`}
+function tab(s){["learn","buddy","flash","plan","ready"].forEach(x=>$(x).hidden=x!==s);document.querySelectorAll(".tb").forEach(b=>b.classList.toggle("on",b.dataset.s===s));if(s==="ready")dash();if(s==="flash")fnext()}
+document.querySelectorAll(".tb").forEach(b=>b.onclick=()=>tab(b.dataset.s));$("ba").onclick=ask;$("bl").onchange=()=>{hist=[]};$("gb").onclick=gen;$("pb").onclick=plan;
+$("en").onclick=()=>{lang="en";$("en").classList.add("on");$("sw").classList.remove("on");cards()};
+$("sw").onclick=()=>{lang="sw";$("sw").classList.add("on");$("en").classList.remove("on");cards()};
+cards();
+</script></main></body></html>
